@@ -19,6 +19,24 @@ export default function AdminLayout({
   }
 
   const getBreadcrumb = () => {
+    if (pathname.includes("/admin/pesanan")) {
+      return (
+        <div className="flex items-center gap-2">
+          <span className="text-slate-400">Transaksi</span>
+          <span className="text-slate-300">/</span>
+          <span className="font-semibold text-slate-800">Pesanan</span>
+        </div>
+      );
+    }
+    if (pathname.includes("/admin/pengaturan")) {
+      return (
+        <div className="flex items-center gap-2">
+          <span className="text-slate-400">Akun</span>
+          <span className="text-slate-300">/</span>
+          <span className="font-semibold text-slate-800">Pengaturan</span>
+        </div>
+      );
+    }
     if (pathname.includes("/admin/pengajuan/")) {
       return (
         <div className="flex items-center gap-2">

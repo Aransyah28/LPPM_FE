@@ -82,7 +82,22 @@ export interface CartItem {
 }
 
 export type PaymentMethod = "BCA_VA" | "BNI_VA" | "BRI_VA";
-export type OrderStatus = "pending_payment" | "paid";
+export type OrderStatus =
+  | "pending_payment"
+  | "paid"
+  | "menunggu_pembayaran"
+  | "menunggu_pengiriman"
+  | "sedang_dikirim"
+  | "selesai"
+  | "gagal";
+
+export interface OrderItemProduct {
+  id: string;
+  judul: string;
+  penulis?: string;
+  harga: number;
+  coverUrl?: string;
+}
 
 export interface Order {
   id: string;
@@ -95,6 +110,11 @@ export interface Order {
   vaNumber?: string;
   status: OrderStatus;
   createdAt: string;
+  // Metadata for admin monitoring and customer info
+  customerName?: string;
+  customerEmail?: string;
+  firstProductTitle?: string;
+  otherProductsCount?: number;
 }
 
 export interface ForgotPasswordToken {

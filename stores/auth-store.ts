@@ -27,6 +27,7 @@ type AuthState = {
   resetPassword: (email: string, password: string) => Result;
   updateCurrentUserProfile: (payload: { nama: string; email: string }) => Result;
   updateCurrentUserPassword: (password: string) => Result;
+  changeAdminPassword: (currentPassword: string, newPassword: string) => Result;
   addAddress: (address: Omit<Address, "id">) => Result;
   updateAddress: (address: Address) => Result;
   removeAddress: (addressId: string) => Result;
@@ -222,6 +223,28 @@ export const useAuthStore = create<AuthState>()(
         }));
 
         return { ok: true, message: "Kata sandi berhasil diperbarui." };
+      },
+      changeAdminPassword: (currentPassword, newPassword) => {
+        const user = get().getCurrentUser();
+        if (!user) {
+          return { ok: false, message: "Pengguna tidak ditemukan." };
+        }
+        if (user.role !== "ADMIN") {
+          return { ok: false, message: "Hanya admin yang dapat mengubah password di sini." };
+        }
+        if (user.passwordHashMock !== makePasswordHash(currentPassword)) {
+          return { ok: false, message: "Password saat ini salah." };
+        }
+
+        set((state) => ({
+          users: state.users.map((item) =>
+            item.id === user.id
+              ? { ...item, passwordHashMock: makePasswordHash(newPassword) }
+              : item,
+          ),
+        }));
+
+        return { ok: true, message: "Password berhasil diperbarui." };
       },
       addAddress: (address) => {
         const user = get().getCurrentUser();

@@ -146,9 +146,13 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
         {/* Other Sections */}
         <div className="pt-2 space-y-1">
           <Link
-            href="#"
-            onClick={(e) => e.preventDefault()}
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-slate-400 hover:bg-slate-50 hover:text-slate-600 cursor-not-allowed"
+            href="/admin/pesanan"
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-colors",
+              pathname === "/admin/pesanan"
+                ? "bg-blue-50 text-blue-600 font-semibold"
+                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+            )}
           >
             <ShoppingCart className="size-4" />
             Pesanan
@@ -183,14 +187,18 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
         </div>
 
         {/* Pengaturan */}
-        <button
-          type="button"
-          onClick={() => {}}
-          className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+        <Link
+          href="/admin/pengaturan"
+          className={cn(
+            "flex w-full items-center gap-3 rounded-lg px-2 py-2 text-xs font-medium transition-colors",
+            pathname === "/admin/pengaturan"
+              ? "bg-blue-50 text-blue-600 font-semibold"
+              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+          )}
         >
           <Settings className="size-4 text-slate-500" />
           Pengaturan
-        </button>
+        </Link>
 
         {/* Keluar */}
         <button
