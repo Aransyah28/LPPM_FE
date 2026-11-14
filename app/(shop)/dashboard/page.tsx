@@ -7,7 +7,7 @@ import {
   FileText,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { ProductCard } from "@/components/shop/product-card";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,11 @@ const PRODUCT_META = UI_IMAGE_ASSETS.dashboard.productMeta;
 
 export default function DashboardPage() {
   const books = useCatalogStore((state) => state.books);
-  const featuredBooks = books.slice(0, 5);
+  const publishedBooks = useMemo(
+    () => books.filter((b) => b.status === "published"),
+    [books]
+  );
+  const featuredBooks = publishedBooks.slice(0, 5);
   const [activeSlide, setActiveSlide] = useState(0);
   const currentSlide = HERO_SLIDES[activeSlide];
 
