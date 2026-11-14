@@ -61,13 +61,12 @@ export default function PengajuanDetailPage({ params }: PageProps) {
           Kembali ke Daftar
         </Link>
 
-        <Button
-          type="button"
-          onClick={handleBuatProduk}
-          className="h-10 rounded-lg bg-[#2563eb] px-5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 active:scale-[0.99]"
+        <Link
+          href={`/admin/produk/buat?fromSubmission=${submission.id}`}
+          className="inline-flex h-9 items-center justify-center rounded-md bg-[#2563eb] px-5 text-xs font-semibold text-white shadow-xs hover:bg-blue-700 transition-colors"
         >
           Buat Produk
-        </Button>
+        </Link>
       </div>
 
       {/* Main 2-Column Grid */}

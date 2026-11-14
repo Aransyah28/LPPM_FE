@@ -144,7 +144,7 @@ export default function PengajuanPublishPage() {
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="h-10 rounded-lg border-slate-200 bg-white px-3 text-xs text-slate-700"
+                  className="h-10 rounded-md border-slate-200 bg-white px-3 text-xs text-slate-700"
                 />
               </div>
             </div>
@@ -156,7 +156,7 @@ export default function PengajuanPublishPage() {
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="h-10 rounded-lg border-slate-200 bg-white px-3 text-xs text-slate-700"
+                  className="h-10 rounded-md border-slate-200 bg-white px-3 text-xs text-slate-700"
                 />
               </div>
             </div>
@@ -213,18 +213,16 @@ export default function PengajuanPublishPage() {
                     <td className="py-3.5 pl-4 text-right whitespace-nowrap space-x-2">
                       <Link
                         href={`/admin/pengajuan/${item.id}`}
-                        className="inline-flex h-8 items-center rounded-lg border border-slate-200 px-3 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                        className="inline-flex h-8 items-center rounded-md border border-slate-200 px-3 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                       >
                         Lihat Detail
                       </Link>
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={() => handleBuatProduk(item)}
-                        className="h-8 rounded-lg bg-[#2563eb] px-3 text-xs font-semibold text-white hover:bg-blue-700"
+                      <Link
+                        href={`/admin/produk/buat?fromSubmission=${item.id}`}
+                        className="inline-flex h-8 items-center rounded-md bg-[#2563eb] px-3 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
                       >
                         Buat Produk
-                      </Button>
+                      </Link>
                     </td>
                   </tr>
                 ))

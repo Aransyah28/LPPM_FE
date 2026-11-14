@@ -34,6 +34,21 @@ export default function AdminLayout({
         </div>
       );
     }
+    if (pathname === "/admin/produk/buat") {
+      return (
+        <div className="flex items-center gap-2">
+          <Link href="/admin/produk" className="text-slate-400 hover:text-slate-700 transition-colors">
+            Katalog & Publikasi
+          </Link>
+          <span className="text-slate-300">/</span>
+          <Link href="/admin/produk" className="text-slate-400 hover:text-slate-700 transition-colors">
+            Kelola Produk
+          </Link>
+          <span className="text-slate-300">/</span>
+          <span className="font-semibold text-slate-800">Buat Produk</span>
+        </div>
+      );
+    }
     if (pathname === "/admin/produk/draft") {
       return (
         <div className="flex items-center gap-2">

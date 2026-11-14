@@ -66,6 +66,13 @@ export interface Book {
   deskripsi?: string;
   isbn?: string;
   tahunTerbit?: string;
+  berat?: number;
+  panjang?: number;
+  lebar?: number;
+  tinggi?: number;
+  kataKunci?: string[];
+  daftarPenulis?: string[];
+  gambarProduk?: string[];
 }
 
 export interface CartItem {

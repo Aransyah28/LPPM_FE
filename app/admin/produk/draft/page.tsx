@@ -133,7 +133,7 @@ export default function DraftProdukPage() {
 
         <Link
           href="/admin/produk"
-          className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-colors self-start sm:self-auto"
+          className="inline-flex h-9 items-center justify-center rounded-md border border-slate-200 bg-white px-3.5 text-xs font-medium text-slate-700 shadow-xs hover:bg-slate-50 transition-colors self-start sm:self-auto"
         >
           Kembali ke Katalog
         </Link>
@@ -150,7 +150,7 @@ export default function DraftProdukPage() {
               placeholder="Cari judul, kategori, atau format..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 rounded-lg border-slate-200 bg-white pl-9 text-xs placeholder:text-slate-400 focus-visible:ring-blue-500"
+              className="h-10 rounded-md border-slate-200 bg-white pl-9 text-xs placeholder:text-slate-400 focus-visible:ring-blue-500"
             />
           </div>
 
@@ -159,7 +159,7 @@ export default function DraftProdukPage() {
               type="button"
               variant="outline"
               size="sm"
-              className="h-10 rounded-lg border-slate-200 px-3 text-xs text-slate-600 hover:bg-slate-50"
+              className="h-10 rounded-md border-slate-200 px-3 text-xs text-slate-600 hover:bg-slate-50"
             >
               <Filter className="mr-1.5 size-3.5 text-slate-400" />
               Filter
@@ -260,7 +260,7 @@ export default function DraftProdukPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleOpenEdit(book)}
-                        className="h-8 rounded-lg border-slate-200 px-3 text-xs text-slate-700 hover:bg-slate-50"
+                        className="h-8 rounded-md border-slate-200 px-3 text-xs text-slate-700 hover:bg-slate-50"
                       >
                         Ubah
                       </Button>
@@ -268,7 +268,7 @@ export default function DraftProdukPage() {
                         type="button"
                         size="sm"
                         onClick={() => handlePublishNow(book)}
-                        className="h-8 rounded-lg bg-[#2563eb] px-3 text-xs font-semibold text-white hover:bg-blue-700 shadow-xs"
+                        className="h-8 rounded-md bg-[#2563eb] px-3 text-xs font-semibold text-white hover:bg-blue-700 shadow-xs"
                       >
                         Lanjutkan Publikasi
                       </Button>
@@ -321,7 +321,7 @@ export default function DraftProdukPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="font-semibold text-slate-700">Kategori *</label>
-                <Select value={formKategori} onValueChange={setFormKategori}>
+                <Select value={formKategori} onValueChange={(val) => setFormKategori(val ?? "")}>
                   <SelectTrigger className="h-9 rounded-lg border-slate-200 text-xs">
                     <SelectValue placeholder="Pilih kategori" />
                   </SelectTrigger>

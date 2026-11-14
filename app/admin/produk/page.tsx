@@ -193,7 +193,7 @@ export default function KelolaProdukPage() {
         <div className="flex items-center gap-3 self-start sm:self-auto">
           <Link
             href="/admin/produk/draft"
-            className="flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+            className="flex items-center rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
           >
             <span>Draft Produk</span>
             <span className="ml-2 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-semibold text-slate-600">
@@ -201,14 +201,13 @@ export default function KelolaProdukPage() {
             </span>
           </Link>
 
-          <Button
-            type="button"
-            onClick={handleOpenAddModal}
-            className="h-10 rounded-lg bg-[#2563eb] px-4 text-xs font-semibold text-white hover:bg-blue-700 shadow-sm"
+          <Link
+            href="/admin/produk/buat"
+            className="flex h-10 items-center rounded-md bg-[#2563eb] px-4 text-xs font-semibold text-white hover:bg-blue-700 shadow-sm transition-colors"
           >
             <Plus className="mr-1.5 size-4" />
             Tambah Produk
-          </Button>
+          </Link>
         </div>
       </div>
 
@@ -268,7 +267,7 @@ export default function KelolaProdukPage() {
               placeholder="Cari judul, kategori, atau format..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 rounded-lg border-slate-200 bg-white pl-9 text-xs placeholder:text-slate-400 focus-visible:ring-blue-500"
+              className="h-10 rounded-md border-slate-200 bg-white pl-9 text-xs placeholder:text-slate-400 focus-visible:ring-blue-500"
             />
           </div>
 
@@ -277,7 +276,7 @@ export default function KelolaProdukPage() {
               type="button"
               variant="outline"
               size="sm"
-              className="h-10 rounded-lg border-slate-200 px-3 text-xs text-slate-600 hover:bg-slate-50"
+              className="h-10 rounded-md border-slate-200 px-3 text-xs text-slate-600 hover:bg-slate-50"
             >
               <Filter className="mr-1.5 size-3.5 text-slate-400" />
               Filter
@@ -403,7 +402,7 @@ export default function KelolaProdukPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleOpenEditModal(book)}
-                          className="h-8 rounded-lg border-slate-200 px-3 text-xs text-slate-700 hover:bg-slate-50"
+                          className="h-8 rounded-md border-slate-200 px-3 text-xs text-slate-700 hover:bg-slate-50"
                         >
                           Ubah
                         </Button>
@@ -414,7 +413,7 @@ export default function KelolaProdukPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleToggleArchive(book)}
-                            className="h-8 rounded-lg border-slate-200 px-3 text-xs text-slate-600 hover:bg-slate-50"
+                            className="h-8 rounded-md border-slate-200 px-3 text-xs text-slate-600 hover:bg-slate-50"
                           >
                             Arsipkan
                           </Button>
@@ -423,7 +422,7 @@ export default function KelolaProdukPage() {
                             type="button"
                             size="sm"
                             onClick={() => handleToggleArchive(book)}
-                            className="h-8 rounded-lg bg-[#2563eb] px-3 text-xs font-semibold text-white hover:bg-blue-700"
+                            className="h-8 rounded-md bg-[#2563eb] px-3 text-xs font-semibold text-white hover:bg-blue-700"
                           >
                             Publikasikan Kembali
                           </Button>
@@ -480,7 +479,7 @@ export default function KelolaProdukPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="font-semibold text-slate-700">Kategori *</label>
-                <Select value={formKategori} onValueChange={setFormKategori}>
+                <Select value={formKategori} onValueChange={(val) => setFormKategori(val ?? "")}>
                   <SelectTrigger className="h-9 rounded-lg border-slate-200 text-xs">
                     <SelectValue placeholder="Pilih kategori" />
                   </SelectTrigger>
