@@ -50,6 +50,19 @@ export default function KelolaProdukPage() {
   const [sortField, setSortField] = useState<"judul" | "harga" | "kategori">("judul");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
+  // Filter Modal states
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [selectedFilterCategories, setSelectedFilterCategories] = useState<string[]>([]);
+  const [categorySearchQuery, setCategorySearchQuery] = useState("");
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [minPrice, setMinPrice] = useState("50000");
+  const [maxPrice, setMaxPrice] = useState("200000");
+
+  // Applied Filters
+  const [appliedCategories, setAppliedCategories] = useState<string[]>([]);
+  const [appliedMinPrice, setAppliedMinPrice] = useState<number | null>(null);
+  const [appliedMaxPrice, setAppliedMaxPrice] = useState<number | null>(null);
+
   // Modal states
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
@@ -86,6 +99,15 @@ export default function KelolaProdukPage() {
           if (!match) return false;
         }
 
+        // Applied Category Filter (Multi-select)
+        if (appliedCategories.length > 0) {
+          if (!appliedCategories.includes(book.kategori)) return false;
+        }
+
+        // Applied Price Range Filter
+        if (appliedMinPrice !== null && book.harga < appliedMinPrice) return false;
+        if (appliedMaxPrice !== null && book.harga > appliedMaxPrice) return false;
+
         return true;
       })
       .sort((a, b) => {
@@ -98,7 +120,16 @@ export default function KelolaProdukPage() {
         if (valA > valB) return sortDirection === "asc" ? 1 : -1;
         return 0;
       });
-  }, [books, activeTab, searchQuery, sortField, sortDirection]);
+  }, [
+    books,
+    activeTab,
+    searchQuery,
+    sortField,
+    sortDirection,
+    appliedCategories,
+    appliedMinPrice,
+    appliedMaxPrice,
+  ]);
 
   const handleOpenAddModal = () => {
     setEditingBook(null);
@@ -274,19 +305,37 @@ export default function KelolaProdukPage() {
           <div className="flex items-center gap-2">
             <Button
               type="button"
-              variant="outline"
+              variant={appliedCategories.length > 0 || appliedMinPrice !== null ? "default" : "outline"}
               size="sm"
-              className="h-10 rounded-md border-slate-200 px-3 text-xs text-slate-600 hover:bg-slate-50"
+              onClick={() => setIsFilterModalOpen(true)}
+              className={`h-10 rounded-md px-3 text-xs ${
+                appliedCategories.length > 0 || appliedMinPrice !== null
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "border-slate-200 text-slate-600 hover:bg-slate-50"
+              }`}
             >
-              <Filter className="mr-1.5 size-3.5 text-slate-400" />
+              <Filter className="mr-1.5 size-3.5 text-current" />
               Filter
+              {appliedCategories.length > 0 && (
+                <span className="ml-1.5 rounded-full bg-white/20 px-1.5 py-0.2 text-[10px] font-bold">
+                  {appliedCategories.length}
+                </span>
+              )}
             </Button>
-            {searchQuery && (
+            {(searchQuery || appliedCategories.length > 0 || appliedMinPrice !== null) && (
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={() => setSearchQuery("")}
+                onClick={() => {
+                  setSearchQuery("");
+                  setAppliedCategories([]);
+                  setAppliedMinPrice(null);
+                  setAppliedMaxPrice(null);
+                  setSelectedFilterCategories([]);
+                  setMinPrice("50000");
+                  setMaxPrice("200000");
+                }}
                 className="h-10 text-xs text-slate-500 hover:text-slate-800"
               >
                 Reset
@@ -397,15 +446,12 @@ export default function KelolaProdukPage() {
 
                       {/* Aksi */}
                       <td className="py-3.5 pl-4 text-right whitespace-nowrap space-x-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleOpenEditModal(book)}
-                          className="h-8 rounded-md border-slate-200 px-3 text-xs text-slate-700 hover:bg-slate-50"
+                        <Link
+                          href={`/admin/produk/ubah/${book.id}`}
+                          className="inline-flex h-8 items-center rounded-md border border-slate-200 px-3 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                         >
                           Ubah
-                        </Button>
+                        </Link>
 
                         {isPublished ? (
                           <Button
@@ -561,6 +607,181 @@ export default function KelolaProdukPage() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+      {/* Modal Filter Produk */}
+      <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
+        <DialogContent className="sm:max-w-[460px] rounded-xl p-6">
+          <DialogHeader className="space-y-1">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-base font-bold text-slate-900">
+                Filter Produk
+              </DialogTitle>
+            </div>
+            <DialogDescription className="text-xs text-slate-500">
+              Pilih satu atau beberapa filter untuk mempersempit daftar produk.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5 pt-3">
+            {/* Kategori Filter Section */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-800">Kategori</label>
+                <span className="text-[11px] text-slate-400">Opsional</span>
+              </div>
+
+              {/* Custom Multi-select Dropdown with Checkboxes */}
+              <div className="relative">
+                <div
+                  onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                  className="flex h-10 w-full cursor-pointer items-center justify-between rounded-md border border-slate-200 bg-white px-3 text-xs text-slate-700 shadow-xs hover:border-slate-300"
+                >
+                  <span className="truncate">
+                    {selectedFilterCategories.length === 0
+                      ? "Semua kategori"
+                      : `${selectedFilterCategories.length} kategori dipilih`}
+                  </span>
+                  <ChevronDown className="size-4 text-slate-400" />
+                </div>
+
+                {isCategoryDropdownOpen && (
+                  <div className="absolute left-0 top-11 z-50 w-full rounded-md border border-slate-200 bg-white p-3 shadow-lg space-y-2">
+                    {/* Search inside category dropdown */}
+                    <Input
+                      type="text"
+                      placeholder="Cari kategori..."
+                      value={categorySearchQuery}
+                      onChange={(e) => setCategorySearchQuery(e.target.value)}
+                      className="h-8 rounded-md border-blue-400 text-xs focus-visible:ring-1 focus-visible:ring-blue-500"
+                      autoFocus
+                    />
+
+                    {/* Scrollable list of categories with checkboxes */}
+                    <div className="max-h-48 overflow-y-auto space-y-2 pt-1 pr-1">
+                      {categories
+                        .filter((cat) =>
+                          cat.nama.toLowerCase().includes(categorySearchQuery.toLowerCase())
+                        )
+                        .map((cat) => {
+                          const isChecked = selectedFilterCategories.includes(cat.nama);
+                          return (
+                            <label
+                              key={cat.id}
+                              className="flex items-center gap-2.5 rounded px-2 py-1.5 text-xs text-slate-700 hover:bg-slate-50 cursor-pointer select-none"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => {
+                                  if (isChecked) {
+                                    setSelectedFilterCategories(
+                                      selectedFilterCategories.filter((c) => c !== cat.nama)
+                                    );
+                                  } else {
+                                    setSelectedFilterCategories([
+                                      ...selectedFilterCategories,
+                                      cat.nama,
+                                    ]);
+                                  }
+                                }}
+                                className="size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="truncate">{cat.nama}</span>
+                            </label>
+                          );
+                        })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Rentang Harga Filter Section */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-slate-800">Rentang Harga</span>
+                <span className="font-medium text-slate-500">
+                  {formatRupiah(parseInt(minPrice, 10) || 0)} –{" "}
+                  {formatRupiah(parseInt(maxPrice, 10) || 0)}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] text-slate-400">Harga Minimum</label>
+                  <Input
+                    type="number"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    className="h-9 rounded-md border-slate-200 text-xs"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] text-slate-400">Harga Maksimum</label>
+                  <Input
+                    type="number"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    className="h-9 rounded-md border-slate-200 text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Visual Range Slider */}
+              <div className="pt-2 px-1">
+                <input
+                  type="range"
+                  min="0"
+                  max="500000"
+                  step="10000"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  className="w-full accent-blue-600 cursor-pointer"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 pt-1">
+                  <span>{formatRupiah(parseInt(minPrice, 10) || 0)}</span>
+                  <span>{formatRupiah(parseInt(maxPrice, 10) || 0)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="mt-6 flex items-center justify-between sm:justify-between gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSelectedFilterCategories([]);
+                setMinPrice("50000");
+                setMaxPrice("200000");
+                setAppliedCategories([]);
+                setAppliedMinPrice(null);
+                setAppliedMaxPrice(null);
+                setIsCategoryDropdownOpen(false);
+                setIsFilterModalOpen(false);
+              }}
+              className="h-10 w-full sm:w-auto rounded-md border-slate-200 text-xs text-slate-700 hover:bg-slate-50"
+            >
+              Reset Filter
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => {
+                setAppliedCategories(selectedFilterCategories);
+                setAppliedMinPrice(parseInt(minPrice, 10) || null);
+                setAppliedMaxPrice(parseInt(maxPrice, 10) || null);
+                setIsCategoryDropdownOpen(false);
+                setIsFilterModalOpen(false);
+                toast.success("Filter produk berhasil diterapkan.");
+              }}
+              className="h-10 w-full sm:w-auto rounded-md bg-[#2563eb] text-xs font-semibold text-white hover:bg-blue-700"
+            >
+              Tampilkan Hasil
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
