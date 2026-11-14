@@ -1,0 +1,17 @@
+# Configuration for Gemini Code Assist
+version: 1
+reviews:
+  # Enable automated reviews on pull requests
+  enabled: true
+  # Review all files or exclude specific paths
+  ignore:
+    - "package-lock.json"
+    - "bun.lock"
+    - "bun.lockb"
+    - "yarn.lock"
+    - "pnpm-lock.yaml"
+    - "dist/**"
+    - ".next/**"
+    - "out/**"
+    - "public/**"
+    - "node_modules/**"
