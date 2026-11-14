@@ -20,6 +20,7 @@ type AuthState = {
   forgotPasswordToken: ForgotPasswordToken | null;
   register: (payload: RegisterInput) => Result;
   login: (email: string, password: string) => Result;
+  loginAdmin: (email: string, password: string) => Result;
   logout: () => void;
   requestPasswordReset: (email: string) => ResetResult;
   verifyOtp: (email: string, otp: string) => Result;
@@ -44,10 +45,20 @@ function randomOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+const DEFAULT_ADMIN: User = {
+  id: "admin-default-id",
+  nama: "Admin UPNVJ",
+  email: "admin@upnvj.ac.id",
+  passwordHashMock: "mock_hash:admin123",
+  role: "ADMIN",
+  alamatList: [],
+  createdAt: "2026-01-01T00:00:00.000Z",
+};
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      users: [],
+      users: [DEFAULT_ADMIN],
       currentUserId: null,
       forgotPasswordToken: null,
       register: ({ nama, email, password }) => {
@@ -89,6 +100,27 @@ export const useAuthStore = create<AuthState>()(
 
         set({ currentUserId: user.id });
         return { ok: true, message: "Login berhasil." };
+      },
+      loginAdmin: (email, password) => {
+        const cleanEmail = normalizeEmail(email);
+        let user = get().users.find((item) => item.email === cleanEmail);
+
+        // Fallback default admin if users array was previously initialized without it
+        if (!user && cleanEmail === DEFAULT_ADMIN.email) {
+          user = DEFAULT_ADMIN;
+          set((state) => ({ users: [...state.users, DEFAULT_ADMIN] }));
+        }
+
+        if (!user || user.passwordHashMock !== makePasswordHash(password)) {
+          return { ok: false, message: "Kredensial admin tidak valid." };
+        }
+
+        if (user.role !== "ADMIN") {
+          return { ok: false, message: "Akses ditolak: Akun tidak memiliki hak akses admin." };
+        }
+
+        set({ currentUserId: user.id });
+        return { ok: true, message: "Login admin berhasil." };
       },
       logout: () => set({ currentUserId: null }),
       requestPasswordReset: (email) => {
