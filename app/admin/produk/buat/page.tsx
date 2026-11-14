@@ -53,6 +53,7 @@ function BuatProdukForm() {
   const [kataKunciList, setKataKunciList] = useState<string[]>([]);
   const [penulisList, setPenulisList] = useState<string[]>([""]);
   const [gambarList, setGambarList] = useState<string[]>([]);
+  const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   // Pre-fill if coming from a submission
   useEffect(() => {
@@ -140,10 +141,29 @@ function BuatProdukForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!judul.trim()) {
-      toast.error("Judul produk wajib diisi.");
+    const newErrors: Record<string, boolean> = {};
+
+    if (!judul.trim()) newErrors.judul = true;
+    if (!kategori) newErrors.kategori = true;
+    if (!deskripsi.trim()) newErrors.deskripsi = true;
+    if (!isbn.trim()) newErrors.isbn = true;
+    if (!tahunTerbit.trim()) newErrors.tahunTerbit = true;
+    if (!harga.trim()) newErrors.harga = true;
+    if (!berat.trim()) newErrors.berat = true;
+    if (!panjang.trim()) newErrors.panjang = true;
+    if (!lebar.trim()) newErrors.lebar = true;
+    if (!tinggi.trim()) newErrors.tinggi = true;
+
+    const filteredAuthors = penulisList.map((p) => p.trim()).filter(Boolean);
+    if (filteredAuthors.length === 0) newErrors.penulis = true;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Semua formulir wajib diisi sebelum menyimpan produk.");
       return;
     }
+
+    setErrors({});
 
     const hargaNum = parseInt(harga.replace(/\D/g, ""), 10) || 0;
     const beratNum = parseFloat(berat) || 0;
@@ -151,8 +171,7 @@ function BuatProdukForm() {
     const lebarNum = parseFloat(lebar) || 0;
     const tinggiNum = parseFloat(tinggi) || 0;
 
-    const filteredAuthors = penulisList.map((p) => p.trim()).filter(Boolean);
-    const primaryAuthor = filteredAuthors.length > 0 ? filteredAuthors[0] : "Admin LPPM";
+    const primaryAuthor = filteredAuthors[0] || "Admin LPPM";
 
     const newProduct = {
       judul: judul.trim(),
@@ -230,20 +249,42 @@ function BuatProdukForm() {
             </div>
             <div className="lg:col-span-8 space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-700">Judul Produk</label>
+                <label className="text-xs font-medium text-slate-700">
+                  Judul Produk <span className="text-rose-500">*</span>
+                </label>
                 <Input
                   type="text"
                   placeholder="Contoh: Transformasi Digital dalam Pengelolaan Perguruan Tinggi"
                   value={judul}
-                  onChange={(e) => setJudul(e.target.value)}
-                  className="h-9 rounded-md border-slate-200 bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500"
+                  onChange={(e) => {
+                    setJudul(e.target.value);
+                    if (errors.judul) setErrors({ ...errors, judul: false });
+                  }}
+                  className={`h-9 rounded-md bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500 ${
+                    errors.judul ? "border-rose-500 ring-1 ring-rose-500" : "border-slate-200"
+                  }`}
                 />
+                {errors.judul && (
+                  <p className="text-[11px] text-rose-500">Judul produk wajib diisi.</p>
+                )}
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-700">Kategori</label>
-                <Select value={kategori} onValueChange={(val) => setKategori(val ?? "")}>
-                  <SelectTrigger className="h-9 w-full rounded-md border-slate-200 bg-white text-xs">
+                <label className="text-xs font-medium text-slate-700">
+                  Kategori <span className="text-rose-500">*</span>
+                </label>
+                <Select
+                  value={kategori}
+                  onValueChange={(val) => {
+                    setKategori(val ?? "");
+                    if (errors.kategori) setErrors({ ...errors, kategori: false });
+                  }}
+                >
+                  <SelectTrigger
+                    className={`h-9 w-full rounded-md bg-white text-xs ${
+                      errors.kategori ? "border-rose-500 ring-1 ring-rose-500" : "border-slate-200"
+                    }`}
+                  >
                     <SelectValue placeholder="Pilih kategori" />
                   </SelectTrigger>
                   <SelectContent>
@@ -254,17 +295,30 @@ function BuatProdukForm() {
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.kategori && (
+                  <p className="text-[11px] text-rose-500">Kategori produk wajib dipilih.</p>
+                )}
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-700">Deskripsi Produk</label>
+                <label className="text-xs font-medium text-slate-700">
+                  Deskripsi Produk <span className="text-rose-500">*</span>
+                </label>
                 <Textarea
                   placeholder="Tuliskan deskripsi lengkap mengenai buku, bab materi, atau keunggulan produk..."
                   rows={4}
                   value={deskripsi}
-                  onChange={(e) => setDeskripsi(e.target.value)}
-                  className="rounded-md border-slate-200 bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500"
+                  onChange={(e) => {
+                    setDeskripsi(e.target.value);
+                    if (errors.deskripsi) setErrors({ ...errors, deskripsi: false });
+                  }}
+                  className={`rounded-md bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500 ${
+                    errors.deskripsi ? "border-rose-500 ring-1 ring-rose-500" : "border-slate-200"
+                  }`}
                 />
+                {errors.deskripsi && (
+                  <p className="text-[11px] text-rose-500">Deskripsi produk wajib diisi.</p>
+                )}
               </div>
             </div>
           </div>
@@ -281,25 +335,45 @@ function BuatProdukForm() {
             </div>
             <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-700">ISBN</label>
+                <label className="text-xs font-medium text-slate-700">
+                  ISBN <span className="text-rose-500">*</span>
+                </label>
                 <Input
                   type="text"
                   placeholder="Contoh: 978-623-93350-1-6"
                   value={isbn}
-                  onChange={(e) => setIsbn(e.target.value)}
-                  className="h-9 rounded-md border-slate-200 bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500"
+                  onChange={(e) => {
+                    setIsbn(e.target.value);
+                    if (errors.isbn) setErrors({ ...errors, isbn: false });
+                  }}
+                  className={`h-9 rounded-md bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500 ${
+                    errors.isbn ? "border-rose-500 ring-1 ring-rose-500" : "border-slate-200"
+                  }`}
                 />
+                {errors.isbn && (
+                  <p className="text-[11px] text-rose-500">ISBN wajib diisi.</p>
+                )}
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-700">Tahun Terbit</label>
+                <label className="text-xs font-medium text-slate-700">
+                  Tahun Terbit <span className="text-rose-500">*</span>
+                </label>
                 <Input
                   type="text"
                   placeholder="Contoh: 2025"
                   value={tahunTerbit}
-                  onChange={(e) => setTahunTerbit(e.target.value)}
-                  className="h-9 rounded-md border-slate-200 bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500"
+                  onChange={(e) => {
+                    setTahunTerbit(e.target.value);
+                    if (errors.tahunTerbit) setErrors({ ...errors, tahunTerbit: false });
+                  }}
+                  className={`h-9 rounded-md bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500 ${
+                    errors.tahunTerbit ? "border-rose-500 ring-1 ring-rose-500" : "border-slate-200"
+                  }`}
                 />
+                {errors.tahunTerbit && (
+                  <p className="text-[11px] text-rose-500">Tahun terbit wajib diisi.</p>
+                )}
               </div>
             </div>
           </div>
@@ -316,7 +390,9 @@ function BuatProdukForm() {
             </div>
             <div className="lg:col-span-8">
               <div className="space-y-1.5 max-w-xs">
-                <label className="text-xs font-medium text-slate-700">Harga</label>
+                <label className="text-xs font-medium text-slate-700">
+                  Harga <span className="text-rose-500">*</span>
+                </label>
                 <div className="relative">
                   <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
                     Rp
@@ -325,10 +401,18 @@ function BuatProdukForm() {
                     type="number"
                     placeholder="0"
                     value={harga}
-                    onChange={(e) => setHarga(e.target.value)}
-                    className="h-9 rounded-md border-slate-200 bg-white pl-9 text-xs placeholder:text-slate-400 focus-visible:ring-blue-500"
+                    onChange={(e) => {
+                      setHarga(e.target.value);
+                      if (errors.harga) setErrors({ ...errors, harga: false });
+                    }}
+                    className={`h-9 rounded-md bg-white pl-9 text-xs placeholder:text-slate-400 focus-visible:ring-blue-500 ${
+                      errors.harga ? "border-rose-500 ring-1 ring-rose-500" : "border-slate-200"
+                    }`}
                   />
                 </div>
+                {errors.harga && (
+                  <p className="text-[11px] text-rose-500">Harga produk wajib diisi.</p>
+                )}
               </div>
             </div>
           </div>
@@ -345,48 +429,88 @@ function BuatProdukForm() {
             </div>
             <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-700">Berat (kg)</label>
+                <label className="text-xs font-medium text-slate-700">
+                  Berat (kg) <span className="text-rose-500">*</span>
+                </label>
                 <Input
                   type="number"
                   step="0.01"
                   placeholder="0.0"
                   value={berat}
-                  onChange={(e) => setBerat(e.target.value)}
-                  className="h-9 rounded-md border-slate-200 bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500"
+                  onChange={(e) => {
+                    setBerat(e.target.value);
+                    if (errors.berat) setErrors({ ...errors, berat: false });
+                  }}
+                  className={`h-9 rounded-md bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500 ${
+                    errors.berat ? "border-rose-500 ring-1 ring-rose-500" : "border-slate-200"
+                  }`}
                 />
+                {errors.berat && (
+                  <p className="text-[11px] text-rose-500">Berat wajib diisi.</p>
+                )}
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-700">Panjang (cm)</label>
+                <label className="text-xs font-medium text-slate-700">
+                  Panjang (cm) <span className="text-rose-500">*</span>
+                </label>
                 <Input
                   type="number"
                   placeholder="0"
                   value={panjang}
-                  onChange={(e) => setPanjang(e.target.value)}
-                  className="h-9 rounded-md border-slate-200 bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500"
+                  onChange={(e) => {
+                    setPanjang(e.target.value);
+                    if (errors.panjang) setErrors({ ...errors, panjang: false });
+                  }}
+                  className={`h-9 rounded-md bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500 ${
+                    errors.panjang ? "border-rose-500 ring-1 ring-rose-500" : "border-slate-200"
+                  }`}
                 />
+                {errors.panjang && (
+                  <p className="text-[11px] text-rose-500">Panjang wajib diisi.</p>
+                )}
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-700">Lebar (cm)</label>
+                <label className="text-xs font-medium text-slate-700">
+                  Lebar (cm) <span className="text-rose-500">*</span>
+                </label>
                 <Input
                   type="number"
                   placeholder="0"
                   value={lebar}
-                  onChange={(e) => setLebar(e.target.value)}
-                  className="h-9 rounded-md border-slate-200 bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500"
+                  onChange={(e) => {
+                    setLebar(e.target.value);
+                    if (errors.lebar) setErrors({ ...errors, lebar: false });
+                  }}
+                  className={`h-9 rounded-md bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500 ${
+                    errors.lebar ? "border-rose-500 ring-1 ring-rose-500" : "border-slate-200"
+                  }`}
                 />
+                {errors.lebar && (
+                  <p className="text-[11px] text-rose-500">Lebar wajib diisi.</p>
+                )}
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-700">Tinggi (cm)</label>
+                <label className="text-xs font-medium text-slate-700">
+                  Tinggi (cm) <span className="text-rose-500">*</span>
+                </label>
                 <Input
                   type="number"
                   placeholder="0"
                   value={tinggi}
-                  onChange={(e) => setTinggi(e.target.value)}
-                  className="h-9 rounded-md border-slate-200 bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500"
+                  onChange={(e) => {
+                    setTinggi(e.target.value);
+                    if (errors.tinggi) setErrors({ ...errors, tinggi: false });
+                  }}
+                  className={`h-9 rounded-md bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500 ${
+                    errors.tinggi ? "border-rose-500 ring-1 ring-rose-500" : "border-slate-200"
+                  }`}
                 />
+                {errors.tinggi && (
+                  <p className="text-[11px] text-rose-500">Tinggi wajib diisi.</p>
+                )}
               </div>
             </div>
           </div>
@@ -452,7 +576,9 @@ function BuatProdukForm() {
 
               {/* Daftar Penulis */}
               <div className="space-y-2">
-                <label className="text-xs font-medium text-slate-700">Daftar Penulis</label>
+                <label className="text-xs font-medium text-slate-700">
+                  Daftar Penulis <span className="text-rose-500">*</span>
+                </label>
                 <div className="space-y-2">
                   {penulisList.map((penulis, idx) => (
                     <div key={idx} className="flex items-center gap-2">
@@ -463,8 +589,15 @@ function BuatProdukForm() {
                         type="text"
                         placeholder="Nama penulis"
                         value={penulis}
-                        onChange={(e) => handleAuthorChange(idx, e.target.value)}
-                        className="h-9 flex-1 rounded-md border-slate-200 bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500"
+                        onChange={(e) => {
+                          handleAuthorChange(idx, e.target.value);
+                          if (errors.penulis) setErrors({ ...errors, penulis: false });
+                        }}
+                        className={`h-9 flex-1 rounded-md bg-white text-xs placeholder:text-slate-400 focus-visible:ring-blue-500 ${
+                          errors.penulis && !penulis.trim()
+                            ? "border-rose-500 ring-1 ring-rose-500"
+                            : "border-slate-200"
+                        }`}
                       />
                       <div className="flex items-center gap-1">
                         <Button
