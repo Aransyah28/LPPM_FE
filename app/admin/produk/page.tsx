@@ -50,6 +50,15 @@ export default function KelolaProdukPage() {
   const [sortField, setSortField] = useState<"judul" | "harga" | "kategori">("judul");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
+  // Dynamic Max Price ceiling calculation based on books, rounded up to hundred thousands (puluhan/ratusan ribu)
+  const maxPriceCeiling = useMemo(() => {
+    if (!books || books.length === 0) return 300000;
+    const maxVal = Math.max(...books.map((b) => b.harga || 0));
+    // Bulatkan ke atas ke kelipatan 50.000 atau 100.000
+    const rounded = Math.ceil(maxVal / 50000) * 50000;
+    return Math.max(rounded, 200000);
+  }, [books]);
+
   // Filter Modal states
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [selectedFilterCategories, setSelectedFilterCategories] = useState<string[]>([]);
@@ -697,13 +706,13 @@ export default function KelolaProdukPage() {
               </div>
             </div>
 
-            {/* Rentang Harga Filter Section */}
-            <div className="space-y-2">
+            {/* Rentang Harga Filter Section (Dual Thumb Range Slider) */}
+            <div className="space-y-3">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-slate-800">Rentang Harga</span>
                 <span className="font-medium text-slate-500">
                   {formatRupiah(parseInt(minPrice, 10) || 0)} –{" "}
-                  {formatRupiah(parseInt(maxPrice, 10) || 0)}
+                  {formatRupiah(parseInt(maxPrice, 10) || maxPriceCeiling)}
                 </span>
               </div>
 
@@ -712,8 +721,19 @@ export default function KelolaProdukPage() {
                   <label className="text-[11px] text-slate-400">Harga Minimum</label>
                   <Input
                     type="number"
+                    min={0}
+                    max={maxPriceCeiling}
+                    step={5000}
                     value={minPrice}
-                    onChange={(e) => setMinPrice(e.target.value)}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10) || 0;
+                      const currentMax = parseInt(maxPrice, 10) || maxPriceCeiling;
+                      if (val <= currentMax) {
+                        setMinPrice(String(val));
+                      } else {
+                        setMinPrice(String(currentMax));
+                      }
+                    }}
                     className="h-9 rounded-md border-slate-200 text-xs"
                   />
                 </div>
@@ -721,27 +741,87 @@ export default function KelolaProdukPage() {
                   <label className="text-[11px] text-slate-400">Harga Maksimum</label>
                   <Input
                     type="number"
+                    min={0}
+                    max={maxPriceCeiling}
+                    step={5000}
                     value={maxPrice}
-                    onChange={(e) => setMaxPrice(e.target.value)}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10) || 0;
+                      const currentMin = parseInt(minPrice, 10) || 0;
+                      if (val >= currentMin) {
+                        setMaxPrice(String(val));
+                      } else {
+                        setMaxPrice(String(currentMin));
+                      }
+                    }}
                     className="h-9 rounded-md border-slate-200 text-xs"
                   />
                 </div>
               </div>
 
-              {/* Visual Range Slider */}
-              <div className="pt-2 px-1">
-                <input
-                  type="range"
-                  min="0"
-                  max="500000"
-                  step="10000"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  className="w-full accent-blue-600 cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] text-slate-400 pt-1">
+              {/* Exact Dual-Thumb Slider Container matching Figma Screenshot */}
+              <div className="pt-2">
+                <div className="relative flex h-11 w-full items-center rounded-lg border border-blue-200/80 bg-slate-50/50 px-3">
+                  {/* Track base */}
+                  <div className="relative h-1.5 w-full rounded-full bg-slate-200">
+                    {/* Active highlighted range bar */}
+                    <div
+                      className="absolute h-full rounded-full bg-blue-600"
+                      style={{
+                        left: `${Math.min(
+                          100,
+                          Math.max(0, ((parseInt(minPrice, 10) || 0) / maxPriceCeiling) * 100)
+                        )}%`,
+                        right: `${Math.min(
+                          100,
+                          Math.max(
+                            0,
+                            100 -
+                              ((parseInt(maxPrice, 10) || maxPriceCeiling) / maxPriceCeiling) * 100
+                          )
+                        )}%`,
+                      }}
+                    />
+                  </div>
+
+                  {/* Native multi-slider inputs overlay */}
+                  <input
+                    type="range"
+                    min={0}
+                    max={maxPriceCeiling}
+                    step={5000}
+                    value={minPrice}
+                    onChange={(e) => {
+                      const val = Math.min(
+                        Number(e.target.value),
+                        (parseInt(maxPrice, 10) || maxPriceCeiling) - 5000
+                      );
+                      setMinPrice(String(val));
+                    }}
+                    className="pointer-events-none absolute inset-x-3 w-[calc(100%-24px)] appearance-none bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:size-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-blue-600 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:size-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-blue-600 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer"
+                  />
+
+                  <input
+                    type="range"
+                    min={0}
+                    max={maxPriceCeiling}
+                    step={5000}
+                    value={maxPrice}
+                    onChange={(e) => {
+                      const val = Math.max(
+                        Number(e.target.value),
+                        (parseInt(minPrice, 10) || 0) + 5000
+                      );
+                      setMaxPrice(String(val));
+                    }}
+                    className="pointer-events-none absolute inset-x-3 w-[calc(100%-24px)] appearance-none bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:size-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-blue-600 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:size-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-blue-600 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer"
+                  />
+                </div>
+
+                {/* Sub-label under slider */}
+                <div className="flex justify-between text-[11px] text-slate-500 pt-1.5 px-0.5">
                   <span>{formatRupiah(parseInt(minPrice, 10) || 0)}</span>
-                  <span>{formatRupiah(parseInt(maxPrice, 10) || 0)}</span>
+                  <span>{formatRupiah(parseInt(maxPrice, 10) || maxPriceCeiling)}</span>
                 </div>
               </div>
             </div>
