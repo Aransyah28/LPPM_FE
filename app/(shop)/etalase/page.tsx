@@ -21,24 +21,28 @@ type SortOption = "newest" | "judul-asc" | "judul-desc" | "harga-asc" | "harga-d
 
 export default function EtalasePage() {
   const books = useCatalogStore((state) => state.books);
+  const publishedBooks = useMemo(
+    () => books.filter((b) => b.status === "published"),
+    [books]
+  );
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [searchInput, setSearchInput] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
 
   const categories = useMemo(() => {
-    const grouped = books.reduce<Record<string, number>>((acc, book) => {
+    const grouped = publishedBooks.reduce<Record<string, number>>((acc, book) => {
       acc[book.kategori] = (acc[book.kategori] ?? 0) + 1;
       return acc;
     }, {});
 
     const sortedCategories = Object.keys(grouped).sort((a, b) => a.localeCompare(b));
-    return [{ name: "Semua", count: books.length }, ...sortedCategories.map((name) => ({ name, count: grouped[name] }))];
-  }, [books]);
+    return [{ name: "Semua", count: publishedBooks.length }, ...sortedCategories.map((name) => ({ name, count: grouped[name] }))];
+  }, [publishedBooks]);
 
   const filteredBooks = useMemo(() => {
     const normalizedKeyword = searchKeyword.trim().toLowerCase();
-    const result = books.filter((book) => {
+    const result = publishedBooks.filter((book) => {
       const matchCategory = selectedCategory === "Semua" || book.kategori === selectedCategory;
       const matchKeyword =
         normalizedKeyword.length === 0 ||

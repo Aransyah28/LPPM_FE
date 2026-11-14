@@ -1,4 +1,29 @@
-export type UserRole = "PENGGUNA";
+export type UserRole = "PENGGUNA" | "ADMIN";
+
+export type PublishSubmissionStatus = "menunggu" | "diproses" | "selesai";
+
+export interface SubmissionAsset {
+  nama: string;
+  tipe: string;
+  ukuran: string;
+  url?: string;
+}
+
+export interface PublishSubmission {
+  id: string; // e.g. "PUB-2025-0034"
+  judulKarya: string;
+  kategori: string;
+  tanggalPengajuan: string; // e.g. "28 Mei 2025"
+  penulis?: string;
+  status: PublishSubmissionStatus;
+  isbn?: string;
+  tahunTerbit?: string;
+  harga?: number;
+  deskripsi?: string;
+  kataKunci?: string[];
+  daftarPenulis?: string[];
+  aset?: SubmissionAsset[];
+}
 
 export interface Address {
   id: string;
@@ -20,6 +45,14 @@ export interface User {
   createdAt: string;
 }
 
+export type ProductStatus = "draft" | "published" | "archived";
+
+export interface Category {
+  id: string;
+  nama: string;
+  deskripsi: string;
+}
+
 export interface Book {
   id: string;
   judul: string;
@@ -28,6 +61,18 @@ export interface Book {
   stok: number;
   coverUrl: string;
   kategori: string;
+  status: ProductStatus;
+  terakhirDiubah?: string;
+  deskripsi?: string;
+  isbn?: string;
+  tahunTerbit?: string;
+  berat?: number;
+  panjang?: number;
+  lebar?: number;
+  tinggi?: number;
+  kataKunci?: string[];
+  daftarPenulis?: string[];
+  gambarProduk?: string[];
 }
 
 export interface CartItem {
@@ -37,7 +82,22 @@ export interface CartItem {
 }
 
 export type PaymentMethod = "BCA_VA" | "BNI_VA" | "BRI_VA";
-export type OrderStatus = "pending_payment" | "paid";
+export type OrderStatus =
+  | "pending_payment"
+  | "paid"
+  | "menunggu_pembayaran"
+  | "menunggu_pengiriman"
+  | "sedang_dikirim"
+  | "selesai"
+  | "gagal";
+
+export interface OrderItemProduct {
+  id: string;
+  judul: string;
+  penulis?: string;
+  harga: number;
+  coverUrl?: string;
+}
 
 export interface Order {
   id: string;
@@ -50,6 +110,11 @@ export interface Order {
   vaNumber?: string;
   status: OrderStatus;
   createdAt: string;
+  // Metadata for admin monitoring and customer info
+  customerName?: string;
+  customerEmail?: string;
+  firstProductTitle?: string;
+  otherProductsCount?: number;
 }
 
 export interface ForgotPasswordToken {
